@@ -44,6 +44,8 @@ def data_task(id):
     task_by_id = tasks.find_one({
         "id": id
     })
+    if task_by_id is None:
+        return abort(422, description="Please enter a valid task ID")
     try:
         return {
             "user_id": task_by_id["user_id"],
@@ -96,6 +98,8 @@ def data_user(user_id):
     user_by_id = users.find_one({
         "id": user_id
     })
+    if user_by_id is None:
+        return abort(422, description="Please enter a valid user ID")
     try:
         return {
             "id": user_by_id['id'],
@@ -125,6 +129,11 @@ def data_user(user_id):
 
 @app.route('/users/<int:user_id>/tasks', methods=['GET'])
 def data_tasks_by_user(user_id):
+    user_by_id = users.find_one({
+        "id": user_id
+    })
+    if user_by_id is None:
+        return abort(422, description="Please enter a valid user ID")
     completed = request.args.get("completed", type=str)
     def t_or_f(arg):
         ua = str(arg).upper()
