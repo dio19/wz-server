@@ -10,6 +10,7 @@ distlib==0.3.4
 dnspython==2.2.1
 filelock==3.7.1
 Flask==2.1.2
+Flask-Cors==3.0.10
 Flask-PyMongo==2.3.0
 gunicorn==20.1.0
 html5lib==1.1

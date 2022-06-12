@@ -1,6 +1,7 @@
 from pymongo import MongoClient
 from flask import Flask, request, jsonify, abort
 from flask_pymongo import PyMongo
+from flask_cors import CORS
 import certifi
 
 def create_app():
@@ -11,6 +12,7 @@ def create_app():
 
     app = Flask(__name__)
     app.config['MONGO_URI']=cluster
+    CORS(app)
     mongo = PyMongo(app)
 
     try:
