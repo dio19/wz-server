@@ -25,20 +25,44 @@ def create_app():
     @app.route('/tasks', methods=['GET'])
     def data_tasks():
         collection = db.tasks.find()
+        completed = request.args.get("completed", type=str)
+        title = request.args.get("title", type=str)
+        def t_or_f(arg):
+            ua = str(arg).upper()
+            if 'TRUE'.startswith(ua):
+                return True
+            elif 'FALSE'.startswith(ua):
+                return False
+            else:
+                return abort(422, description="Please enter a boolean value, true or false")
         if collection is not None:
             all_tasks = []
-            for task in collection:
+            data_all_tasks = []
+            if completed is not None:
+                all_tasks = tasks.find({
+                    "completed": t_or_f(completed)
+                })
+            elif completed is None:
+                all_tasks = collection
+            for task in all_tasks:
                 data_task = {
                     "user_id": task["user_id"],
                     "id": task["id"],
                     "title": task["title"],
                     "completed": task["completed"]
                 }
-                all_tasks.append(data_task)
+                data_all_tasks.append(data_task)
+            data_filtered = []
+            if title is not None:
+                for item in data_all_tasks:
+                    if title in item["title"]:
+                        data_filtered.append(item)
+            else:
+                data_filtered = data_all_tasks
         else:
             return jsonify({"error": "An error occurred with tasks collection"}), 503
         try:
-            return { "total_items": tasks.count_documents({}), "data": all_tasks }
+            return { "total_items": len(data_filtered), "data": data_filtered }
         except Exception as e:
             return jsonify({"An exception occurred": e})
 
@@ -70,7 +94,7 @@ def create_app():
                     "name": user['name'],
                     "username": user['username'],
                     "email": user['email'],
-                    "adress": {
+                    "address": {
                         "street": user['address']['street'],
                         "suite": user['address']['suite'],
                         "city": user['address']['city'],
@@ -109,7 +133,7 @@ def create_app():
                 "name": user_by_id['name'],
                 "username": user_by_id['username'],
                 "email": user_by_id['email'],
-                "adress": {
+                "address": {
                     "street": user_by_id['address']['street'],
                     "suite": user_by_id['address']['suite'],
                     "city": user_by_id['address']['city'],
